@@ -1,10 +1,10 @@
-<div style="text-align: center !important">
+<center>
 
 ### NeoSchematic
 
 [Source](https://github.com/Efnilite/neoschematic) | by [Efnilite](https://github.com/Efnilite)
 
-</div>
+</center>
 
 ## Features
 - Easily editable schematic files for small changes
