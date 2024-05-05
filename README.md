@@ -2,7 +2,7 @@
 
 ### NeoSchematic
 
-[Source](https://github.com/Efnilite/neoschematic) · [] · by [Efnilite](https://github.com/Efnilite)
+[Source](https://github.com/Efnilite/neoschematic) · [SpigotMC](https://www.spigotmc.org/resources/116652/) · by [Efnilite](https://github.com/Efnilite)
 
 </div>
 
