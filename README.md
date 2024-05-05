@@ -10,6 +10,38 @@
 - Easily editable schematic files for small changes
 - Scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
 
+## Including in your project
+
+### Maven
+```xml
+<repositories>
+    <repository>
+        <id>jitpack</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>dev.efnilite</groupId>
+        <artifactId>neoschematic</artifactId>
+        <version>1.0.0</version>
+        <scope>compile</scope>
+    </dependency>
+</dependencies>
+```
+
+### Gradle
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'dev.efnilite:neoschematic:1.0.0'
+}
+```
+
 ## Usage
 
 ### Create and save a schematic

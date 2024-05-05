@@ -34,8 +34,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @param palette The palette of block data.
      * @param blocks The block data.
      */
-    public Schematic {
-    }
+    public Schematic { }
 
     /**
      * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
