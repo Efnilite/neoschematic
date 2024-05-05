@@ -7,9 +7,9 @@
 </div>
 
 ## Features
+- Much easier than WorldEdit
 - Easily editable schematic files for small changes
 - Scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
-
 
 ## Todo
 
