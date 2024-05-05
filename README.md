@@ -2,14 +2,14 @@
 
 ### NeoSchematic
 
-[Source](https://github.com/Efnilite/neoschematic) | by [Efnilite](https://github.com/Efnilite)
+[Source](https://github.com/Efnilite/neoschematic) · [] · by [Efnilite](https://github.com/Efnilite)
 
 </div>
 
 ## Features
-- Much easier than WorldEdit
-- Easily editable schematic files for small changes
-- Scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
+- Much easier and smaller than WorldEdit
+- Schematics are stored in JSON: allows for easy editing and reading
+- Storage size scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
 
 ## Todo
 
