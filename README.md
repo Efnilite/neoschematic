@@ -10,6 +10,13 @@
 - Easily editable schematic files for small changes
 - Scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
 
+
+## Todo
+
+- Add version migrations
+- Add support for entities
+- Add support for rotations
+
 ## Including in your project
 
 ### Maven
@@ -145,9 +152,3 @@ public class ExamplePlugin extends JavaPlugin implements CommandExecutor {
     }
 }
 ```
-
-## Todo
-
-- Add version migrations
-- Add support for entities
-- Add support for rotations
