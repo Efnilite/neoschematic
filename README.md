@@ -30,7 +30,7 @@
 
 <dependencies>
     <dependency>
-        <groupId>dev.efnilite</groupId>
+        <groupId>com.github.Efnilite</groupId>
         <artifactId>neoschematic</artifactId>
         <version>1.0.0</version>
         <scope>compile</scope>
@@ -45,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.efnilite:neoschematic:1.0.0'
+    implementation 'com.github.Efnilite:neoschematic:1.0.0'
 }
 ```
 
