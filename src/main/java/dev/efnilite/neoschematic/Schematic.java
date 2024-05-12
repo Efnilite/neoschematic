@@ -31,12 +31,6 @@ import java.util.concurrent.CompletableFuture;
 public record Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
                         List<BlockData> palette, List<Short> blocks) {
 
-//    private static final Map<String, List<Function<String, String>>> migrators = new TreeMap<>();
-//
-//    static {
-//        addMigrator("1.19.4", (data) -> data.replace("minecraft:grass", "minecraft:short_grass"));
-//    }
-
     /**
      * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
      * For large schematics, use {@link #createAsync(Location, Location, Plugin)}.
@@ -214,25 +208,6 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
 
         return new BlocksData(dimensions, palette, blocks);
     }
-
-//    /**
-//     * Adds a migrator function for the specified version.
-//     * If version incompatibilities exist, the migrator will be called to update the {@link BlockData}.
-//     * This only updates to newer versions.
-//     *
-//     * @param version The version string. Example: "1.19.4".
-//     * @param migrator The migrator function.
-//     */
-//    public static void addMigrator(String version, Function<String, String> migrator) {
-//        migrators.computeIfAbsent(version, k -> new ArrayList<>()).add(migrator);
-//    }
-//
-//    /**
-//     * @return the migrators map. Sorted by version.
-//     */
-//    public static Map<String, List<Function<String, String>>> getMigrators() {
-//        return migrators;
-//    }
 
     /**
      * Saves the schematic to a file with the specified {@link FileType}.
