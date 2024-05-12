@@ -2,13 +2,20 @@
 
 ### NeoSchematic
 
-[Source](https://github.com/Efnilite/neoschematic) | by [Efnilite](https://github.com/Efnilite)
+[Source](https://github.com/Efnilite/neoschematic) · [SpigotMC](https://www.spigotmc.org/resources/116652/) · by [Efnilite](https://github.com/Efnilite)
 
 </div>
 
 ## Features
-- Easily editable schematic files for small changes
-- Scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
+- Much easier and smaller than WorldEdit
+- Schematics are stored in JSON: allows for easy editing and reading
+- Storage size scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
+
+## Todo
+
+- Add version migrations
+- Add support for entities
+- Add support for rotations
 
 ## Including in your project
 
@@ -23,9 +30,9 @@
 
 <dependencies>
     <dependency>
-        <groupId>dev.efnilite</groupId>
+        <groupId>com.github.Efnilite</groupId>
         <artifactId>neoschematic</artifactId>
-        <version>1.0.0</version>
+        <version>v1.0.0</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -38,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.efnilite:neoschematic:1.0.0'
+    implementation 'com.github.Efnilite:neoschematic:v1.0.0'
 }
 ```
 
@@ -145,9 +152,3 @@ public class ExamplePlugin extends JavaPlugin implements CommandExecutor {
     }
 }
 ```
-
-## Todo
-
-- Add version migrations
-- Add support for entities
-- Add support for rotations

@@ -17,7 +17,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * Stores blocks in memory.
+ * Creates a new {@link Schematic} instance. This should only be used for custom {@link FileType} implementations.
+ * @see #create(Location, Location)
+ *
+ * @param dataVersion The data version.
+ * @param minecraftVersion The Minecraft NMS version.
+ * @param dimensions The dimensions of the schematic.
+ * @param palette The palette of block data.
+ * @param blocks The block data.
  */
 public record Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
                         List<BlockData> palette, List<Short> blocks) {
@@ -47,18 +54,6 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     public static Map<String, List<Function<String, String>>> getMigrators() {
         return migrators;
     }
-
-    /**
-     * Creates a new {@link Schematic} instance. This should only be used for custom {@link FileType} implementations.
-     * @see #create(Location, Location)
-     *
-     * @param dataVersion The data version.
-     * @param minecraftVersion The Minecraft NMS version.
-     * @param dimensions The dimensions of the schematic.
-     * @param palette The palette of block data.
-     * @param blocks The block data.
-     */
-    public Schematic { }
 
     /**
      * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
@@ -239,9 +234,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     }
 
     private static String getVersion() {
-        return Bukkit.getServer().getClass().getPackage().getName()
-                .replace(".", ",").split(",")[3]
-                .replaceAll("[vR]", "").replace("_", ".");
+        return Bukkit.getBukkitVersion().split("-")[0];
     }
 
     /**
