@@ -12,9 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Creates a new {@link Schematic} instance. This should only be used for custom {@link FileType} implementations.
@@ -29,31 +31,11 @@ import java.util.function.Function;
 public record Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
                         List<BlockData> palette, List<Short> blocks) {
 
-    private static final Map<String, List<Function<String, String>>> migrators = new TreeMap<>();
-
-    // todo implement
-    static {
-        addMigrator("1.19.4", (data) -> data.replace("minecraft:grass", "minecraft:short_grass"));
-    }
-
-    /**
-     * Adds a migrator function for the specified version.
-     * If version incompatibilities exist, the migrator will be called to update the {@link BlockData}.
-     * This only updates to newer versions.
-     *
-     * @param version The version string. Example: "1.19.4".
-     * @param migrator The migrator function.
-     */
-    public static void addMigrator(String version, Function<String, String> migrator) {
-        migrators.computeIfAbsent(version, k -> new ArrayList<>()).add(migrator);
-    }
-
-    /**
-     * @return the migrators map. Sorted by version.
-     */
-    public static Map<String, List<Function<String, String>>> getMigrators() {
-        return migrators;
-    }
+//    private static final Map<String, List<Function<String, String>>> migrators = new TreeMap<>();
+//
+//    static {
+//        addMigrator("1.19.4", (data) -> data.replace("minecraft:grass", "minecraft:short_grass"));
+//    }
 
     /**
      * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
@@ -69,7 +51,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
 
         var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
 
-        return new Schematic(1, getVersion(), data.dimensions, data.palette, data.blocks);
+        return new Schematic(1, Bukkit.getBukkitVersion().split("-")[0], data.dimensions, data.palette, data.blocks);
     }
 
     /**
@@ -233,9 +215,24 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
         return new BlocksData(dimensions, palette, blocks);
     }
 
-    private static String getVersion() {
-        return Bukkit.getBukkitVersion().split("-")[0];
-    }
+//    /**
+//     * Adds a migrator function for the specified version.
+//     * If version incompatibilities exist, the migrator will be called to update the {@link BlockData}.
+//     * This only updates to newer versions.
+//     *
+//     * @param version The version string. Example: "1.19.4".
+//     * @param migrator The migrator function.
+//     */
+//    public static void addMigrator(String version, Function<String, String> migrator) {
+//        migrators.computeIfAbsent(version, k -> new ArrayList<>()).add(migrator);
+//    }
+//
+//    /**
+//     * @return the migrators map. Sorted by version.
+//     */
+//    public static Map<String, List<Function<String, String>>> getMigrators() {
+//        return migrators;
+//    }
 
     /**
      * Saves the schematic to a file with the specified {@link FileType}.

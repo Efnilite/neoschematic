@@ -83,11 +83,18 @@ public class JsonSchematic implements FileType {
         try (var reader = new BufferedReader(new FileReader(file))) {
             var serialized = GSON.fromJson(reader, JsonSchematic.class);
 
+            var mcVersion = serialized.minecraftVersion;
+            var unparsedPalette = serialized.palette;
+
+//            if (!mcVersion.equals(Bukkit.getBukkitVersion().split("-")[0])) {
+//                // todo
+//            }
+
+            var palette = unparsedPalette.stream().map(Bukkit::createBlockData).toList();
             var dimensions = new Vector(serialized.dimensions.get(0), serialized.dimensions.get(1), serialized.dimensions.get(2));
-            var palette = serialized.palette.stream().map(Bukkit::createBlockData).toList();
             var blocks = serialized.blocks.chars().mapToObj(it -> (short) (it - START)).toList();
 
-            return new Schematic(serialized.dataVersion, serialized.minecraftVersion, dimensions, palette, blocks);
+            return new Schematic(serialized.dataVersion, mcVersion, dimensions, palette, blocks);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -106,4 +113,32 @@ public class JsonSchematic implements FileType {
             return Character.toString(c);
         });
     }
+
+//    // returns true if current mc version is lower than compare
+//    private boolean isLower(String current, String compare) {
+//        var cur = getNumbers(current); // 1.19.4
+//        var com = getNumbers(compare); // 2.1.5
+//
+//        if (com[0] > cur[0]) {
+//            return false;
+//        } else if (com[0] == cur[0]) {
+//            if (com[1] > cur[1]) {
+//                return false;
+//            } else if (com[1] == cur[1]) {
+//                return com[2] > cur[2];
+//            }
+//        }
+//
+//        return true;
+//    }
+//
+//    private int[] getNumbers(String string) {
+//        var parts = string.split("\\.");
+//
+//        return new int[] {
+//            Integer.parseInt(parts[0]),
+//            Integer.parseInt(parts[1]),
+//            Integer.parseInt(parts[2])
+//        };
+//    }
 }
