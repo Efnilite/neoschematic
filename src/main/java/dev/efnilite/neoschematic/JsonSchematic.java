@@ -83,11 +83,14 @@ public class JsonSchematic implements FileType {
         try (var reader = new BufferedReader(new FileReader(file))) {
             var serialized = GSON.fromJson(reader, JsonSchematic.class);
 
+            var mcVersion = serialized.minecraftVersion;
+            var unparsedPalette = serialized.palette;
+
+            var palette = unparsedPalette.stream().map(Bukkit::createBlockData).toList();
             var dimensions = new Vector(serialized.dimensions.get(0), serialized.dimensions.get(1), serialized.dimensions.get(2));
-            var palette = serialized.palette.stream().map(Bukkit::createBlockData).toList();
             var blocks = serialized.blocks.chars().mapToObj(it -> (short) (it - START)).toList();
 
-            return new Schematic(serialized.dataVersion, serialized.minecraftVersion, dimensions, palette, blocks);
+            return new Schematic(serialized.dataVersion, mcVersion, dimensions, palette, blocks);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
