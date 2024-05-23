@@ -36,18 +36,58 @@
         <scope>compile</scope>
     </dependency>
 </dependencies>
+
+<build>
+<plugins>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+            <execution>
+                <phase>package</phase>
+                <goals>
+                    <goal>shade</goal>
+                </goals>
+            </execution>
+        </executions>
+        <configuration>
+            <relocations>
+                <relocation>
+                    <pattern>dev.efnilite.neoschematic</pattern>
+                    <!-- Replace 'com.yourpackage' with the package of your plugin ! -->
+                    <shadedPattern>com.yourpackage.neoschematic</shadedPattern>
+                </relocation>
+            </relocations>
+        </configuration>
+    </plugin>
+</plugins>
+</build>
+
 ```
 
 ### Gradle
 ```gradle
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
 repositories {
-    maven { url 'https://jitpack.io' }
+    mavenCentral()
 }
 
 dependencies {
     implementation 'com.github.Efnilite:neoschematic:v1.0.0'
 }
+
+shadowJar {
+    // Replace 'com.yourpackage' with the package of your plugin 
+    relocate 'dev.efnilite.neoschematic', 'com.yourpackage.neoschematic'
+}
 ```
+
+### Manual
+Copy the files into your project.
 
 ## Usage
 
