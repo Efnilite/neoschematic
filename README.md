@@ -32,7 +32,7 @@
     <dependency>
         <groupId>com.github.Efnilite</groupId>
         <artifactId>neoschematic</artifactId>
-        <version>v1.0.0</version>
+        <version>v1.0.1</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>
