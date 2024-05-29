@@ -106,7 +106,7 @@ public class JsonSchematic implements FileType {
                 currentChar++;
             } while (Character.isISOControl(currentChar));
 
-            System.out.println(currentChar);
+            System.out.println("id: " + id + " char: " + currentChar);
             return Character.toString(currentChar);
         });
     }
