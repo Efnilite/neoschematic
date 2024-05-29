@@ -31,6 +31,7 @@ public class JsonSchematic implements FileType {
             .create();
 
     private final Map<Short, String> chars = new HashMap<>();
+    private final Map<Character, Short> controls = new HashMap<>();
 
     @Expose
     private int dataVersion;
@@ -90,7 +91,7 @@ public class JsonSchematic implements FileType {
 
             var palette = unparsedPalette.stream().map(Bukkit::createBlockData).toList();
             var dimensions = new Vector(serialized.dimensions.get(0), serialized.dimensions.get(1), serialized.dimensions.get(2));
-            var blocks = serialized.blocks.chars().mapToObj(it -> (short) (it - START)).toList();
+            var blocks = serialized.blocks.chars().mapToObj(c -> fromChar((char) c)).toList();
 
             return new Schematic(serialized.dataVersion, mcVersion, dimensions, palette, blocks);
         } catch (IOException e) {
@@ -106,8 +107,21 @@ public class JsonSchematic implements FileType {
                 currentChar++;
             } while (Character.isISOControl(currentChar));
 
-            System.out.println("id: " + id + " char: " + currentChar);
             return Character.toString(currentChar);
+        });
+    }
+
+    public short fromChar(char c) {
+        return controls.computeIfAbsent(c, it -> {
+            var controlSince = 0;
+
+            for (var i = START; i < c; i++) {
+                if (Character.isISOControl(i)) {
+                    controlSince++;
+                }
+            }
+
+            return (short) (c - START - controlSince);
         });
     }
 }
