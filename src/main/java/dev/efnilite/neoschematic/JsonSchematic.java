@@ -22,6 +22,8 @@ import java.util.Map;
 public class JsonSchematic implements FileType {
 
     private static final int START = '#';
+    private static int currentChar = START - 1;
+
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
@@ -98,15 +100,13 @@ public class JsonSchematic implements FileType {
     }
 
     // avoids control chars
-    private String getChar(short id) {
+    public String getChar(short id) {
         return chars.computeIfAbsent(id, it -> {
-            char c = (char) (START + chars.size());
+            do {
+                currentChar++;
+            } while (Character.isISOControl(currentChar));
 
-            while (Character.isISOControl(c)) {
-                c++;
-            }
-
-            return Character.toString(c);
+            return Character.toString(currentChar);
         });
     }
 }
