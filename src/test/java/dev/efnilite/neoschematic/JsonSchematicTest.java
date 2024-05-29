@@ -12,12 +12,13 @@ public class JsonSchematicTest {
 
     @Test
     public void testCharacters() {
-        var chars = IntStream.range(0, 128).mapToObj(i -> jsonSchematic.getChar((short) i)).toList();
+        var chars = IntStream.range(0, 100).mapToObj(i -> jsonSchematic.getChar((short) i)).toList();
+        var str = String.join("", chars);
 
-        assertEquals(chars.get(0), "#");
-        assertEquals(chars.get(1), "$");
-        assertEquals(chars.get(91), "~");
-        assertEquals(chars.get(92), " ");
-        assertEquals(chars.get(93), "¡"); // start of non-ascii
+        assertEquals(str.charAt(0), '#');
+        assertEquals(str.charAt(1), '$');
+        assertEquals(str.charAt(91), '~');
+        assertEquals(str.charAt(92), ' ');
+        assertEquals(str.charAt(93), '¡'); // start of non-ascii
     }
 }
