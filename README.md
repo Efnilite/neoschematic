@@ -77,7 +77,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.Efnilite:neoschematic:v1.0.0'
+    implementation 'com.github.Efnilite:neoschematic:v1.0.2'
 }
 
 shadowJar {
