@@ -22,7 +22,7 @@ import java.util.Map;
 public class JsonSchematic implements FileType {
 
     private static final int START = '#';
-    private static int currentChar = START - 1;
+    private int currentChar = START - 1;
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -82,6 +82,7 @@ public class JsonSchematic implements FileType {
     @Nullable
     public Schematic load(@NotNull File file) {
         Preconditions.checkNotNull(file, "File is null");
+        Preconditions.checkArgument(file.exists(), "File does not exist");
 
         try (var reader = new BufferedReader(new FileReader(file))) {
             var serialized = GSON.fromJson(reader, JsonSchematic.class);

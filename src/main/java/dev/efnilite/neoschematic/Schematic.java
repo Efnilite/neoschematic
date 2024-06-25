@@ -72,9 +72,13 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @param file The file to read.
      * @param type The {@link FileType} instance.
      * @return A new {@link Schematic} instance, or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     @Nullable
     public static Schematic load(@NotNull File file, @NotNull FileType type) {
+        Preconditions.checkNotNull(file, "File is null");
+        Preconditions.checkArgument(file.exists(), "File does not exist");
+
         return type.load(file);
     }
 
@@ -97,6 +101,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param file The file to read.
      * @return A new {@link Schematic} instance, or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     @Nullable
     public static Schematic load(@NotNull File file) {
@@ -109,6 +114,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param file The file to read.
      * @return A new {@link Schematic} instance, or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     @Nullable
     public static Schematic load(@NotNull String file) {
@@ -121,8 +127,9 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @param file The file to read.
      * @param type The {@link FileType} instance.
      * @param plugin The plugin instance.
-     * @return A {@link CompletableFuture}.
-     * When completed, the new {@link Schematic} instance is returned, or null if reading fails or if the file doesn't exist.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned,
+     * or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     public static CompletableFuture<Schematic> loadAsync(@NotNull File file, @NotNull FileType type, @NotNull Plugin plugin) {
         var future = new CompletableFuture<Schematic>();
@@ -138,8 +145,9 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @param file The file to read.
      * @param type The {@link FileType} instance.
      * @param plugin The plugin instance.
-     * @return A {@link CompletableFuture}.
-     * When completed, the new {@link Schematic} instance is returned, or null if reading fails or if the file doesn't exist.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned,
+     * or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     public static CompletableFuture<Schematic> loadAsync(@NotNull String file, @NotNull FileType type, @NotNull Plugin plugin) {
         return loadAsync(new File(file), type, plugin);
@@ -150,8 +158,9 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param file The file to read.
      * @param plugin The plugin instance.
-     * @return A {@link CompletableFuture}.
-     * When completed, the new {@link Schematic} instance is returned, or null if reading fails or if the file doesn't exist.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned,
+     * or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     public static CompletableFuture<Schematic> loadAsync(@NotNull File file, @NotNull Plugin plugin) {
         return loadAsync(file, new JsonSchematic(), plugin);
@@ -162,8 +171,9 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param file The file to read.
      * @param plugin The plugin instance.
-     * @return A {@link CompletableFuture}.
-     * When completed, the new {@link Schematic} instance is returned, or null if reading fails or if the file doesn't exist.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned,
+     * or null if reading fails or if the file doesn't exist.
+     * @throws IllegalArgumentException If file does not exist or is null.
      */
     public static CompletableFuture<Schematic> loadAsync(@NotNull String file, @NotNull Plugin plugin) {
         return loadAsync(new File(file), plugin);
@@ -216,8 +226,12 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @param file The file to save to.
      * @param type The {@link FileType} instance.
      * @return {@code true} if the schematic was saved successfully, false if an error was returned.
+     * @throws IllegalArgumentException If file or filetype is null.
      */
     public boolean save(@NotNull File file, @NotNull FileType type) {
+        Preconditions.checkNotNull(file, "File is null");
+        Preconditions.checkNotNull(type, "File type is null");
+
         return type.save(this, file);
     }
 
@@ -228,6 +242,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @param file The file to save to.
      * @param type The {@link FileType} instance.
      * @return {@code true} if the schematic was saved successfully, false if an error was returned.
+     * @throws IllegalArgumentException If file or filetype is null.
      */
     public boolean save(@NotNull String file, @NotNull FileType type) {
         return save(new File(file), type);
@@ -239,6 +254,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param file The file to save to.
      * @return {@code true} if the schematic was saved successfully, false if an error was returned.
+     * @throws IllegalArgumentException If file is null.
      */
     public boolean save(@NotNull File file) {
         return save(file, new JsonSchematic());
@@ -250,6 +266,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param file The file to save to.
      * @return {@code true} if the schematic was saved successfully, false if an error was returned.
+     * @throws IllegalArgumentException If file is null.
      */
     public boolean save(@NotNull String file) {
         return save(new File(file));
