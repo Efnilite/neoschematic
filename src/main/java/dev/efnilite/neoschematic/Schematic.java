@@ -184,14 +184,14 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
         Preconditions.checkNotNull(pos2, "Second position is null");
         Preconditions.checkNotNull(world, "Locations must have at least one world");
 
-        var pos = pos1.clone().toLocation(world);
-        var min = Vector.getMinimum(pos1, pos2);
-        var max = Vector.getMaximum(pos1, pos2);
-        var dimensions = max.clone().subtract(min).toBlockVector();
+        var min = round(Vector.getMinimum(pos1, pos2));
+        var max = round(Vector.getMaximum(pos1, pos2));
+        var dimensions = max.clone().subtract(min);
 
         var paletteMap = new LinkedHashMap<BlockData, Short>();
         var blocks = new LinkedList<Short>();
 
+        var pos = min.clone().toLocation(world);
         for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
             pos.setX(x);
 
@@ -339,7 +339,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     public List<Block> paste(@NotNull Location location, boolean skipAir) {
         Preconditions.checkNotNull(location, "Location is null");
 
-        var pos = location.clone();
+        var pos = round(location);
         var max = pos.clone().add(dimensions);
         var bs = new ArrayList<Block>();
 
@@ -370,6 +370,17 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
         }
 
         return bs;
+    }
+
+    // rounds vector to lowest ints
+    private static Vector round(Vector vector) {
+        return new Vector(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
+    }
+
+    // rounds location to lowest ints
+    private static Location round(Location location) {
+        return new Location(location.getWorld(), Math.floor(location.getX()),
+                Math.floor(location.getY()), Math.floor(location.getZ()));
     }
 
     private record BlocksData(Vector dimensions, List<BlockData> palette, List<Short> blocks) {
