@@ -32,7 +32,7 @@
     <dependency>
         <groupId>com.github.Efnilite</groupId>
         <artifactId>neoschematic</artifactId>
-        <version>v1.0.2</version>
+        <version>v1.0.4</version>
         <scope>compile</scope>
     </dependency>
 </dependencies>
@@ -77,7 +77,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.Efnilite:neoschematic:v1.0.2'
+    implementation 'com.github.Efnilite:neoschematic:v1.0.4'
 }
 
 shadowJar {
