@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -334,9 +335,22 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * Pastes the schematic at the specified location.
      *
      * @param location The location to paste the schematic at.
+     * @param skipAir Whether to skip air blocks.
      * @return A list of all blocks which have been altered.
      */
     public List<Block> paste(@NotNull Location location, boolean skipAir) {
+        return paste(location, skipAir, StructureRotation.NONE);
+    }
+
+    /**
+     * Pastes the schematic at the specified location.
+     *
+     * @param location The location to paste the schematic at.
+     * @param skipAir Whether to skip air blocks.
+     * @param rotation The rotation in the (x, z)-plane (yaw).
+     * @return A list of all blocks which have been altered.
+     */
+    public List<Block> paste(@NotNull Location location, boolean skipAir, StructureRotation rotation) {
         Preconditions.checkNotNull(location, "Location is null");
 
         var pos = round(location);
@@ -358,6 +372,10 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
                     if (skipAir && data.getMaterial().isAir()) {
                         idx++;
                         continue;
+                    }
+
+                    if (rotation != StructureRotation.NONE) {
+                        data.rotate(rotation);
                     }
 
                     var block = pos.getBlock();
