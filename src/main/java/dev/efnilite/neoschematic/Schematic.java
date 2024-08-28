@@ -374,11 +374,16 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
                         continue;
                     }
 
+                    Block block;
                     if (rotation != StructureRotation.NONE) {
                         data.rotate(rotation);
+
+                        var offset = pos.clone().subtract(location);
+                        block = rotate(location, offset, rotation).getBlock();
+                    } else {
+                        block = pos.getBlock();
                     }
 
-                    var block = pos.getBlock();
                     block.setBlockData(data);
                     bs.add(block);
 
@@ -388,6 +393,15 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
         }
 
         return bs;
+    }
+
+    private static Location rotate(Location base, Location offset, StructureRotation rotation) {
+        return switch (rotation) {
+            case CLOCKWISE_90 -> base.clone().add(offset.getZ(), offset.getY(), -offset.getX());
+            case CLOCKWISE_180 -> base.clone().add(-offset.getX(), offset.getY(), -offset.getZ());
+            case COUNTERCLOCKWISE_90 -> base.clone().add(-offset.getZ(), offset.getY(), offset.getX());
+            default -> throw new IllegalStateException("Called rotate with no rotation");
+        };
     }
 
     // rounds vector to lowest ints
