@@ -71,7 +71,6 @@ public class JsonSchematic implements FileType {
 
             writer.flush();
         } catch (IOException e) {
-            e.printStackTrace();
             return false;
         }
 
@@ -96,7 +95,6 @@ public class JsonSchematic implements FileType {
 
             return new Schematic(serialized.dataVersion, mcVersion, dimensions, palette, blocks);
         } catch (IOException e) {
-            e.printStackTrace();
             return null;
         }
     }
