@@ -432,6 +432,25 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
         return bs;
     }
 
+    /**
+     * Returns the absolute location of a specific waypoint, not relative to the paste location.
+     * If the waypoint does not exist, null is returned.
+     *
+     * @param pastedAt The location where the schematic was pasted.
+     * @param name The name of the waypoint.
+     * @return The absolute location of the waypoint, or null if the waypoint does not exist.
+     */
+    @Nullable
+    public Vector getWaypoint(@NotNull Location pastedAt, @NotNull String name) {
+        Vector vector = waypoints.get(name);
+
+        if (vector == null) {
+            return null;
+        }
+
+        return vector.clone().add(pastedAt.toVector());
+    }
+
     // rounds vector to lowest ints
     private static Vector round(Vector vector) {
         return new Vector(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
