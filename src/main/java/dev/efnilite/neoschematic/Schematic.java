@@ -12,10 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -29,7 +26,17 @@ import java.util.concurrent.CompletableFuture;
  * @param blocks The block data.
  */
 public record Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
-                        List<BlockData> palette, List<Short> blocks) {
+                        List<BlockData> palette, List<Short> blocks, Map<String, Vector> waypoints) {
+
+    /**
+     * The current data version.
+     */
+    public static final int DATA_VERSION = 2;
+
+    public Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
+                     List<BlockData> palette, List<Short> blocks) {
+        this(dataVersion, minecraftVersion, dimensions, palette, blocks, new HashMap<>());
+    }
 
     /**
      * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
@@ -45,7 +52,31 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
 
         var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
 
-        return new Schematic(1, Bukkit.getBukkitVersion().split("-")[0], data.dimensions, data.palette, data.blocks);
+        return new Schematic(DATA_VERSION, Bukkit.getBukkitVersion().split("-")[0],
+                data.dimensions, data.palette, data.blocks);
+    }
+
+    /**
+     * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
+     * For large schematics, use {@link #createAsync(Location, Location, Plugin)}.
+     *
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @param waypoints A map of waypoints, where each key identifies a vector offset from the paste location.
+     * @return A new {@link Schematic} instance.
+     */
+    @NotNull
+    public static Schematic create(
+            @NotNull Location pos1,
+            @NotNull Location pos2,
+            @NotNull Map<String, Vector> waypoints
+    ) {
+        var world = pos1.getWorld() == null ? pos2.getWorld() : pos1.getWorld();
+
+        var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
+
+        return new Schematic(2, Bukkit.getBukkitVersion().split("-")[0],
+                data.dimensions, data.palette, data.blocks, waypoints);
     }
 
     /**
@@ -54,13 +85,42 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      *
      * @param pos1 The first position.
      * @param pos2 The second position.
+     * @param plugin The plugin instance.
      * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned.
      */
     @NotNull
-    public static CompletableFuture<Schematic> createAsync(@NotNull Location pos1, @NotNull Location pos2, @NotNull Plugin plugin) {
+    public static CompletableFuture<Schematic> createAsync(
+            @NotNull Location pos1,
+            @NotNull Location pos2,
+            @NotNull Plugin plugin
+    ) {
         var future = new CompletableFuture<Schematic>();
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> future.complete(create(pos1, pos2)));
+
+        return future;
+    }
+
+    /**
+     * Asynchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
+     * This method avoids blocking the main thread during block fetching.
+     *
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @param waypoints A map of waypoints, where each key identifies a vector offset from the paste location.
+     * @param plugin The plugin instance.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned.
+     */
+    @NotNull
+    public static CompletableFuture<Schematic> createAsync(
+            @NotNull Location pos1,
+            @NotNull Location pos2,
+            @NotNull Map<String, Vector> waypoints,
+            @NotNull Plugin plugin
+    ) {
+        var future = new CompletableFuture<Schematic>();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> future.complete(create(pos1, pos2, waypoints)));
 
         return future;
     }
