@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +46,7 @@ public class JsonSchematic implements FileType {
     @Expose
     private String blocks;
     @Expose
-    private Map<String, String> waypoints;
+    private Map<String, List<String>> waypoints;
 
     public JsonSchematic() {
 
@@ -54,7 +55,7 @@ public class JsonSchematic implements FileType {
     public JsonSchematic(
             int dataVersion, String minecraftVersion,
             List<Integer> dimensions, List<String> palette,
-            String blocks, Map<String, String> waypoints
+            String blocks, Map<String, List<String>> waypoints
     ) {
         this.dataVersion = dataVersion;
         this.minecraftVersion = minecraftVersion;
@@ -73,7 +74,8 @@ public class JsonSchematic implements FileType {
         var palette = schematic.palette().stream().map(it -> it.getAsString(true)).toList();
         var serializedBlocks = String.join("", schematic.blocks().stream().map(this::getChar).toList());
         var waypoints = schematic.waypoints().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().toString()));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
+                        .map(it -> it.getX() + "," + it.getY() + "," + it.getZ() + "," + it.getYaw() + "," + it.getPitch()).toList()));
 
         var jsonSchematic = new JsonSchematic(Schematic.DATA_VERSION,
                 schematic.minecraftVersion(), dimensions, palette,
@@ -108,15 +110,17 @@ public class JsonSchematic implements FileType {
                     serialized.dimensions.get(2));
             var blocks = serialized.blocks.chars().mapToObj(c -> fromChar((char) c)).toList();
 
-            var waypoints = new HashMap<String, Vector>();
+            var waypoints = new HashMap<String, List<Location>>();
             if (dataVersion >= 2) {
-                serialized.waypoints.forEach((key, value) -> {
-                    var vector = new Vector();
-                    var split = value.split(",");
-                    vector.setX(Double.parseDouble(split[0]));
-                    vector.setY(Double.parseDouble(split[1]));
-                    vector.setZ(Double.parseDouble(split[2]));
-                    waypoints.put(key, vector);
+                serialized.waypoints.forEach((key, locations) -> {
+                    waypoints.put(key, locations.stream()
+                            .map(it -> it.split(","))
+                            .map(it -> new Location(null, Double.parseDouble(it[0]),
+                                    Double.parseDouble(it[1]),
+                                    Double.parseDouble(it[2]),
+                                    Float.parseFloat(it[3]),
+                                    Float.parseFloat(it[4])))
+                            .toList());
                 });
             }
 

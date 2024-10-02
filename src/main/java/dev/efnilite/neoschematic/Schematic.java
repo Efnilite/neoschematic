@@ -26,7 +26,8 @@ import java.util.concurrent.CompletableFuture;
  * @param blocks The block data.
  */
 public record Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
-                        List<BlockData> palette, List<Short> blocks, Map<String, Vector> waypoints) {
+                        List<BlockData> palette, List<Short> blocks,
+                        Map<String, List<Location>> waypoints) {
 
     /**
      * The current data version.
@@ -69,7 +70,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     public static Schematic create(
             @NotNull Location pos1,
             @NotNull Location pos2,
-            @NotNull Map<String, Vector> waypoints
+            @NotNull Map<String, List<Location>> waypoints
     ) {
         var world = pos1.getWorld() == null ? pos2.getWorld() : pos1.getWorld();
 
@@ -115,7 +116,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     public static CompletableFuture<Schematic> createAsync(
             @NotNull Location pos1,
             @NotNull Location pos2,
-            @NotNull Map<String, Vector> waypoints,
+            @NotNull Map<String, List<Location>> waypoints,
             @NotNull Plugin plugin
     ) {
         var future = new CompletableFuture<Schematic>();
@@ -433,6 +434,31 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     }
 
     /**
+     * Returns the absolute locations of specific waypoints, not relative to the paste location.
+     * If the waypoints do not exist, null is returned.
+     *
+     * @param pastedAt The location where the schematic was pasted.
+     * @param name The name of the waypoint.
+     * @return The absolute location of the waypoints, or null if the waypoints do not exist.
+     */
+    @Nullable
+    public List<Location> getWaypoints(@NotNull Location pastedAt, @NotNull String name) {
+        Preconditions.checkNotNull(pastedAt.getWorld(), "World is null");
+
+        if (!waypoints.containsKey(name)) {
+            return null;
+        }
+
+        return waypoints.get(name).stream()
+                .map(location -> {
+                    Location added = location.clone().add(pastedAt);
+                    added.setWorld(pastedAt.getWorld());
+                    return added;
+                })
+                .toList();
+    }
+
+    /**
      * Returns the absolute location of a specific waypoint, not relative to the paste location.
      * If the waypoint does not exist, null is returned.
      *
@@ -441,14 +467,22 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
      * @return The absolute location of the waypoint, or null if the waypoint does not exist.
      */
     @Nullable
-    public Vector getWaypoint(@NotNull Location pastedAt, @NotNull String name) {
-        Vector vector = waypoints.get(name);
+    public Location getWaypoint(@NotNull Location pastedAt, @NotNull String name) {
+        Preconditions.checkNotNull(pastedAt.getWorld(), "World is null");
 
-        if (vector == null) {
+        if (!waypoints.containsKey(name)) {
             return null;
         }
 
-        return vector.clone().add(pastedAt.toVector());
+        Location location = waypoints.get(name).get(0);
+
+        if (location == null) {
+            return null;
+        }
+
+        Location added = location.clone().add(pastedAt.toVector());
+        added.setWorld(pastedAt.getWorld());
+        return added;
     }
 
     // rounds vector to lowest ints
