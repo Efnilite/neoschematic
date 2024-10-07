@@ -1,0 +1,4 @@
+name: neoschematic
+author: Efnilite
+version: 1.0.0
+main: dev.efnilite.neoschematic.test.TestPlugin

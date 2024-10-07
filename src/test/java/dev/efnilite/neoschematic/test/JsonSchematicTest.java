@@ -1,4 +1,4 @@
-package dev.efnilite.neoschematic;
+package dev.efnilite.neoschematic.test;
 
 import org.junit.jupiter.api.Test;
 

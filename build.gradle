@@ -13,12 +13,43 @@ repositories {
     }
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
-    compileOnly 'org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT'
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+configurations {
+    serverTestImplementation
 }
 
-test {
-    useJUnitPlatform()
+dependencies {
+    implementation 'org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT'
+    implementation 'org.jetbrains:annotations:24.1.0'
+
+    implementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    serverTestImplementation 'com.google.code.gson:gson:2.11.0'
+}
+
+tasks.register('testJar', Jar) {
+    archiveFileName = 'neoschematic-test.jar'
+    from sourceSets.main.output, sourceSets.test.output
+}
+
+def testVersion = "1.18.2"
+def testJavaVersion = 17
+
+tasks.register('serverTest', JavaExec) {
+    dependsOn testJar
+
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(testJavaVersion)
+    }
+
+    classpath = files([
+            sourceSets.main.runtimeClasspath,
+            configurations.serverTestImplementation,
+    ])
+
+    mainClass = 'dev.efnilite.neoschematic.test.TestPlatform'
+    args = [
+            testVersion,
+            'build/test',
+            'src/test/dev/efnilite/neoschematic',
+            'src/test/resources/'
+    ]
 }
