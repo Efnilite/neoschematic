@@ -93,7 +93,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return new Schematic(2, Bukkit.getBukkitVersion().split("-")[0],
+        return new Schematic(DATA_VERSION, Bukkit.getBukkitVersion().split("-")[0],
                 data.dimensions, data.palette, data.blocks, offsetWaypoints);
     }
 
