@@ -55,6 +55,19 @@ public class JsonSchematic implements FileType {
     public JsonSchematic(
             int dataVersion, String minecraftVersion,
             List<Integer> dimensions, List<String> palette,
+            String blocks
+    ) {
+        this.dataVersion = dataVersion;
+        this.minecraftVersion = minecraftVersion;
+        this.dimensions = dimensions;
+        this.palette = palette;
+        this.blocks = blocks;
+        this.waypoints = new HashMap<>();
+    }
+
+    public JsonSchematic(
+            int dataVersion, String minecraftVersion,
+            List<Integer> dimensions, List<String> palette,
             String blocks, Map<String, List<String>> waypoints
     ) {
         this.dataVersion = dataVersion;
