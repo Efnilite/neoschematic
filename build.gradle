@@ -1,4 +1,5 @@
 plugins {
+    id 'com.gradleup.shadow' version '8.3.3'
     id 'java'
 }
 
@@ -25,7 +26,7 @@ dependencies {
     serverTestImplementation 'com.google.code.gson:gson:2.11.0'
 }
 
-tasks.register('testJar', Jar) {
+tasks.register('testJar', ShadowJar) {
     archiveFileName = 'neoschematic-test.jar'
     from sourceSets.main.output, sourceSets.test.output
 }
