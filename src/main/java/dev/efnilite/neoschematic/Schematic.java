@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Creates a new {@link Schematic} instance. This should only be used for custom {@link FileType} implementations.
@@ -50,6 +51,7 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     @NotNull
     public static Schematic create(@NotNull Location pos1, @NotNull Location pos2) {
         var world = pos1.getWorld() == null ? pos2.getWorld() : pos1.getWorld();
+        Preconditions.checkNotNull(world, "Locations must have at least one world");
 
         var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
 
@@ -73,11 +75,26 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
             @NotNull Map<String, List<Location>> waypoints
     ) {
         var world = pos1.getWorld() == null ? pos2.getWorld() : pos1.getWorld();
+        Preconditions.checkNotNull(world, "Locations must have at least one world");
 
-        var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
+        var pos1Vector = pos1.toVector();
+        var pos2Vector = pos2.toVector();
+
+        var data = getBlocks(pos1Vector, pos2Vector, world);
+        var min = round(Vector.getMinimum(pos1Vector, pos2Vector)).toLocation(world);
+
+        var offsetWaypoints = waypoints.entrySet().stream()
+                .map(entry -> {
+                    var name = entry.getKey();
+                    var locations = entry.getValue();
+                    return Map.entry(name, locations.stream()
+                            .map(location -> location.clone().subtract(min))
+                            .toList());
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return new Schematic(2, Bukkit.getBukkitVersion().split("-")[0],
-                data.dimensions, data.palette, data.blocks, waypoints);
+                data.dimensions, data.palette, data.blocks, offsetWaypoints);
     }
 
     /**
@@ -240,10 +257,9 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
         return loadAsync(new File(file), plugin);
     }
 
-    private static BlocksData getBlocks(Vector pos1, Vector pos2, World world) {
+    private static BlocksData getBlocks(Vector pos1, Vector pos2, @NotNull World world) {
         Preconditions.checkNotNull(pos1, "First position is null");
         Preconditions.checkNotNull(pos2, "Second position is null");
-        Preconditions.checkNotNull(world, "Locations must have at least one world");
 
         var min = round(Vector.getMinimum(pos1, pos2));
         var max = round(Vector.getMaximum(pos1, pos2));
