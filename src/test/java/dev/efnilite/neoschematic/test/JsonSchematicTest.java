@@ -1,5 +1,6 @@
 package dev.efnilite.neoschematic.test;
 
+import dev.efnilite.neoschematic.JsonSchematic;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.IntStream;

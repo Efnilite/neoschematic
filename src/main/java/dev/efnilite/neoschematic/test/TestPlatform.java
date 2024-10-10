@@ -5,10 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class TestPlatform {
@@ -123,5 +121,37 @@ public class TestPlatform {
         int code = process.waitFor();
         if (code != 0)
             throw new IOException("Environment returned with code " + code);
+
+        TestResults results;
+        try (BufferedReader reader = Files.newBufferedReader(testPath.resolve("test-results.json"))) {
+            results = new Gson().fromJson(reader, TestResults.class);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to read tests: " + ex);
+        }
+
+        PrintStream out = System.out;
+        if (results.failed() > 0) {
+            out = System.err;
+        }
+
+        out.println("========== Test report ==========");
+        out.println();
+        out.println("Tests done: " + results.done());
+        out.println("Tests passed: " + results.passed());
+        out.println("\t" + String.join(", ", results.passes()));
+        out.println("Tests failed: " + results.failed());
+        out.println();
+
+        for (Map.Entry<String, List<String>> entry : results.failures().entrySet()) {
+            String name = entry.getKey();
+            List<String> stack = entry.getValue();
+            out.println("\t" + name);
+            stack.forEach(out::println);
+            out.println();
+        }
+
+        out.println("========== Test report ==========");
+
+        System.exit(results.failed() > 0 ? -1 : 0);
     }
 }
