@@ -7,7 +7,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 group = 'dev.efnilite'
 version = '1.1.0'
-sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -17,32 +16,23 @@ repositories {
 }
 
 configurations {
-    serverTestImplementation
-    testJarImplementation {
-        extendsFrom testImplementation
-        canBeResolved = true
-    }
+    testImplementation.extendsFrom testShadow
 }
 
 dependencies {
     implementation 'org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT'
     implementation 'org.jetbrains:annotations:24.1.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
-    testImplementation 'org.junit.platform:junit-platform-engine:1.10.0'
-    testImplementation 'org.junit.platform:junit-platform-launcher:1.2.0'
+    implementation 'org.junit:junit:4.13.2'
 
-    implementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
-    implementation 'org.junit.platform:junit-platform-engine:1.10.0'
-    implementation 'org.junit.platform:junit-platform-launcher:1.2.0'
-
-    serverTestImplementation 'com.google.code.gson:gson:2.11.0'
+    testShadow 'org.junit:junit:4.13.2'
+    testShadow 'com.google.code.gson:gson:2.11.0'
 }
 
 tasks.register('testJar', ShadowJar) {
+    dependsOn compileTestJava
     archiveFileName = 'neoschematic-test.jar'
-    from sourceSets.main.output, sourceSets.test.output
-    configurations = [project.configurations.testJarImplementation]
+    from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
 
 def testVersion = "1.18.2"
@@ -57,7 +47,6 @@ tasks.register('serverTest', JavaExec) {
 
     classpath = files([
             sourceSets.main.runtimeClasspath,
-            configurations.serverTestImplementation,
     ])
 
     mainClass = 'dev.efnilite.neoschematic.test.TestPlatform'
@@ -67,4 +56,8 @@ tasks.register('serverTest', JavaExec) {
             'src/test/dev/efnilite/neoschematic',
             'src/test/resources/'
     ]
+}
+
+test {
+    useJUnitPlatform()
 }

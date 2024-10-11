@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -15,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class TestPlatform {
@@ -44,6 +46,7 @@ public class TestPlatform {
             startServer();
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.exit(-1);
         }
     }
 
@@ -126,7 +129,7 @@ public class TestPlatform {
         try (BufferedReader reader = Files.newBufferedReader(testPath.resolve("test-results.json"))) {
             results = new Gson().fromJson(reader, TestResults.class);
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to read tests: " + ex);
+            throw new IOException("Failed to read tests: " + ex);
         }
 
         PrintStream out = System.out;
