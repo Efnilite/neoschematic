@@ -467,9 +467,9 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
 
         return waypoints.get(name).stream()
                 .map(location -> {
-                    Location added = location.clone().add(pastedAt);
+                    Location added = location.clone();
                     added.setWorld(pastedAt.getWorld());
-                    return added;
+                    return added.add(pastedAt);
                 })
                 .toList();
     }
@@ -496,9 +496,10 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
             return null;
         }
 
-        Location added = location.clone().add(pastedAt.toVector());
+
+        Location added = location.clone();
         added.setWorld(pastedAt.getWorld());
-        return added;
+        return added.clone().add(pastedAt.toVector());
     }
 
     // rounds vector to lowest ints
