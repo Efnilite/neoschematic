@@ -1,10 +1,12 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
 }
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 group = 'dev.efnilite'
 version = '1.1.0'
-sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -13,10 +15,47 @@ repositories {
     }
 }
 
+configurations {
+    testImplementation.extendsFrom testShadow
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
-    compileOnly 'org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT'
-    compileOnly 'org.jetbrains:annotations:24.1.0'
+    implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.21.1-R0.1-SNAPSHOT'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '24.1.0'
+
+    implementation group: 'junit', name: 'junit', version: '4.13.2'
+
+    testShadow group: 'junit', name: 'junit', version: '4.13.2'
+    testShadow 'com.google.code.gson:gson:2.11.0'
+}
+
+tasks.register('testJar', ShadowJar) {
+    dependsOn compileTestJava
+    archiveFileName = 'neoschematic-test.jar'
+    from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
+}
+
+def testVersion = "1.18.2"
+def testJavaVersion = 17
+
+tasks.register('serverTest', JavaExec) {
+    dependsOn testJar
+
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(testJavaVersion)
+    }
+
+    classpath = files([
+            sourceSets.main.runtimeClasspath,
+    ])
+
+    mainClass = 'dev.efnilite.neoschematic.test.TestPlatform'
+    args = [
+            testVersion,
+            'build/test',
+            'src/test/dev/efnilite/neoschematic',
+            'src/test/resources/'
+    ]
 }
 
 test {

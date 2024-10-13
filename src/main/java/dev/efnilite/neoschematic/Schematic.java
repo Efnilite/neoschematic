@@ -10,26 +10,41 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Creates a new {@link Schematic} instance. This should only be used for custom {@link FileType} implementations.
- * @see #create(Location, Location)
  *
- * @param dataVersion The data version.
- * @param minecraftVersion The Minecraft NMS version.
- * @param dimensions The dimensions of the schematic.
- * @param palette The palette of block data.
- * @param blocks The block data.
+ * @see #create(Location, Location)
  */
-public record Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
-                        List<BlockData> palette, List<Short> blocks) {
+public final class Schematic {
+
+    public static final int DATA_VERSION = 1;
+    private final int dataVersion;
+    private final String minecraftVersion;
+    private final Vector dimensions;
+    private final List<BlockData> palette;
+    private final List<Short> blocks;
+
+    /**
+     * @param dataVersion      The data version.
+     * @param minecraftVersion The Minecraft version.
+     * @param dimensions       The dimensions of the schematic.
+     * @param palette          The palette of block data.
+     * @param blocks           The block data.
+     */
+    public Schematic(int dataVersion, String minecraftVersion, Vector dimensions,
+                     List<BlockData> palette, List<Short> blocks) {
+        this.dataVersion = dataVersion;
+        this.minecraftVersion = minecraftVersion;
+        this.dimensions = dimensions;
+        this.palette = palette;
+        this.blocks = blocks;
+    }
 
     /**
      * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
@@ -45,7 +60,8 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
 
         var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
 
-        return new Schematic(1, Bukkit.getBukkitVersion().split("-")[0], data.dimensions, data.palette, data.blocks);
+        return new Schematic(DATA_VERSION, Bukkit.getBukkitVersion().split("-")[0],
+                data.dimensions, data.palette, data.blocks);
     }
 
     /**
@@ -381,6 +397,112 @@ public record Schematic(int dataVersion, String minecraftVersion, Vector dimensi
     private static Location round(Location location) {
         return new Location(location.getWorld(), Math.floor(location.getX()),
                 Math.floor(location.getY()), Math.floor(location.getZ()));
+    }
+
+    /**
+     * @return The data version this schematic was saved in.
+     */
+    public int getDataVersion() {
+        return dataVersion;
+    }
+
+    /**
+     * @return The Minecraft version this schematic was saved in.
+     */
+    @NotNull
+    public String getMinecraftVersion() {
+        return minecraftVersion;
+    }
+
+    /**
+     * @return The dimensions of the schematic.
+     */
+    @NotNull
+    public Vector getDimensions() {
+        return dimensions.clone().add(new Vector(1, 1, 1));
+    }
+
+    /**
+     * @return The palette of block data.
+     */
+    @NotNull
+    @UnmodifiableView
+    public List<BlockData> getPalette() {
+        return Collections.unmodifiableList(palette);
+    }
+
+    @NotNull
+    @UnmodifiableView
+    public List<Short> getBlocks() {
+        return Collections.unmodifiableList(blocks);
+    }
+
+    /**
+     * @deprecated Use {@link #getDataVersion()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "1.1.0")
+    public int dataVersion() {
+        return dataVersion;
+    }
+
+    /**
+     * @deprecated Use {@link #getDataVersion()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "1.1.0")
+    public String minecraftVersion() {
+        return minecraftVersion;
+    }
+
+    /**
+     * @deprecated Use {@link #getDimensions()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "1.1.0")
+    public Vector dimensions() {
+        return dimensions;
+    }
+
+    /**
+     * @deprecated Use {@link #getPalette()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "1.1.0")
+    public List<BlockData> palette() {
+        return palette;
+    }
+
+    /**
+     * @deprecated Use {@link #getBlocks()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "1.1.0")
+    public List<Short> blocks() {
+        return blocks;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (Schematic) obj;
+
+        return this.dataVersion == that.dataVersion &&
+                Objects.equals(this.minecraftVersion, that.minecraftVersion) &&
+                Objects.equals(this.dimensions, that.dimensions) &&
+                Objects.equals(this.palette, that.palette) &&
+                Objects.equals(this.blocks, that.blocks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dataVersion, minecraftVersion, dimensions, palette, blocks);
+    }
+
+    @Override
+    public String toString() {
+        return "Schematic[" +
+                "dataVersion=" + dataVersion + ", " +
+                "minecraftVersion=" + minecraftVersion + ", " +
+                "dimensions=" + dimensions + ", " +
+                "palette=" + palette + ", " +
+                "blocks=" + blocks + ']';
     }
 
     private record BlocksData(Vector dimensions, List<BlockData> palette, List<Short> blocks) {
