@@ -87,7 +87,7 @@ public class JsonSchematic implements FileType {
         var dimensions = List.of(dimensionVector.getBlockX(), dimensionVector.getBlockY(), dimensionVector.getBlockZ());
         var palette = schematic.getPalette().stream().map(it -> it.getAsString(true)).toList();
         var serializedBlocks = String.join("", schematic.getBlocks().stream().map(this::getChar).toList());
-        var waypoints = schematic.waypoints().entrySet().stream()
+        var waypoints = schematic.getWaypoints().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
                         .map(it -> it.getX() + "," + it.getY() + "," + it.getZ() + "," + it.getYaw() + "," + it.getPitch()).toList()));
 

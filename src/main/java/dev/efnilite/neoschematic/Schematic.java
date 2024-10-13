@@ -471,6 +471,17 @@ public final class Schematic {
         return bs;
     }
 
+    // rounds vector to lowest ints
+    private static Vector round(Vector vector) {
+        return new Vector(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
+    }
+
+    // rounds location to lowest ints
+    private static Location round(Location location) {
+        return new Location(location.getWorld(), Math.floor(location.getX()),
+                Math.floor(location.getY()), Math.floor(location.getZ()));
+    }
+
     /**
      * Returns the absolute locations of specific waypoints, not relative to the paste location.
      * If the waypoints do not exist, null is returned.
@@ -524,17 +535,6 @@ public final class Schematic {
         return added.clone().add(pastedAt.toVector());
     }
 
-    // rounds vector to lowest ints
-    private static Vector round(Vector vector) {
-        return new Vector(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
-    }
-
-    // rounds location to lowest ints
-    private static Location round(Location location) {
-        return new Location(location.getWorld(), Math.floor(location.getX()),
-                Math.floor(location.getY()), Math.floor(location.getZ()));
-    }
-
     /**
      * @return The data version this schematic was saved in.
      */
@@ -571,6 +571,12 @@ public final class Schematic {
     @UnmodifiableView
     public List<Short> getBlocks() {
         return Collections.unmodifiableList(blocks);
+    }
+
+    @NotNull
+    @UnmodifiableView
+    public Map<String, List<Location>> getWaypoints() {
+        return Collections.unmodifiableMap(waypoints);
     }
 
     /**
