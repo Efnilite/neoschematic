@@ -20,12 +20,12 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT'
-    implementation 'org.jetbrains:annotations:24.1.0'
+    implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.21.1-R0.1-SNAPSHOT'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '24.1.0'
 
-    implementation 'org.junit:junit:4.13.2'
+    implementation group: 'junit', name: 'junit', version: '4.13.2'
 
-    testShadow 'org.junit:junit:4.13.2'
+    testShadow group: 'junit', name: 'junit', version: '4.13.2'
     testShadow 'com.google.code.gson:gson:2.11.0'
 }
 

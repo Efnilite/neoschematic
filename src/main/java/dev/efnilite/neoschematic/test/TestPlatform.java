@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -16,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class TestPlatform {
@@ -28,7 +26,7 @@ public class TestPlatform {
     private static Path testPath;
     private static Path testResourcesPath;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.out.println("Initializing test platform");
 
         version = args[0];
@@ -126,7 +124,7 @@ public class TestPlatform {
             throw new IOException("Environment returned with code " + code);
 
         TestResults results;
-        try (BufferedReader reader = Files.newBufferedReader(testPath.resolve("test-results.json"))) {
+        try (BufferedReader reader = Files.newBufferedReader(path.resolve("test-results.json"))) {
             results = new Gson().fromJson(reader, TestResults.class);
         } catch (IOException ex) {
             throw new IOException("Failed to read tests: " + ex);
@@ -141,16 +139,22 @@ public class TestPlatform {
         out.println();
         out.println("Tests done: " + results.done());
         out.println("Tests passed: " + results.passed());
-        out.println("\t" + String.join(", ", results.passes()));
+        if (results.passed() > 0) {
+            out.println("\t" + String.join(", ", results.passes()));
+        }
         out.println("Tests failed: " + results.failed());
         out.println();
 
-        for (Map.Entry<String, List<String>> entry : results.failures().entrySet()) {
-            String name = entry.getKey();
-            List<String> stack = entry.getValue();
-            out.println("\t" + name);
-            stack.forEach(out::println);
-            out.println();
+        if (results.failed() > 0) {
+            for (Map.Entry<String, List<String>> entry : results.failures().entrySet()) {
+                String name = entry.getKey();
+                List<String> stack = entry.getValue();
+                out.println(name);
+                for (String s : stack) {
+                    out.println("\t" + s);
+                }
+                out.println();
+            }
         }
 
         out.println("========== Test report ==========");
