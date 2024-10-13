@@ -46,7 +46,7 @@ public final class Schematic {
         this.minecraftVersion = minecraftVersion;
         this.dimensions = dimensions;
         this.palette = palette;
-        this.blocks = blocks
+        this.blocks = blocks;
         this.waypoints = waypoints;
     }
   
