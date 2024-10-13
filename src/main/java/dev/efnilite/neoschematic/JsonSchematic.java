@@ -83,16 +83,17 @@ public class JsonSchematic implements FileType {
         Preconditions.checkNotNull(schematic, "Schematic is null");
         Preconditions.checkNotNull(file, "File is null");
 
-        var dimensions = List.of(schematic.dimensions().getBlockX(), schematic.dimensions().getBlockY(), schematic.dimensions().getBlockZ());
-        var palette = schematic.palette().stream().map(it -> it.getAsString(true)).toList();
-        var serializedBlocks = String.join("", schematic.blocks().stream().map(this::getChar).toList());
+        var dimensionVector = schematic.getDimensions().subtract(new Vector(1, 1, 1));
+        var dimensions = List.of(dimensionVector.getBlockX(), dimensionVector.getBlockY(), dimensionVector.getBlockZ());
+        var palette = schematic.getPalette().stream().map(it -> it.getAsString(true)).toList();
+        var serializedBlocks = String.join("", schematic.getBlocks().stream().map(this::getChar).toList());
         var waypoints = schematic.waypoints().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
                         .map(it -> it.getX() + "," + it.getY() + "," + it.getZ() + "," + it.getYaw() + "," + it.getPitch()).toList()));
 
-        var jsonSchematic = new JsonSchematic(Schematic.DATA_VERSION,
-                schematic.minecraftVersion(), dimensions, palette,
-                serializedBlocks, waypoints);
+        var jsonSchematic = new JsonSchematic(schematic.getDataVersion(), schematic.getMinecraftVersion(),
+                dimensions, palette, serializedBlocks, waypoints);
+
         try (var writer = new BufferedWriter(new FileWriter(file))) {
             GSON.toJson(jsonSchematic, writer);
 
