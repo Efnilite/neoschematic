@@ -8,6 +8,8 @@ import org.bukkit.World;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 public abstract class TestRunner {
 
@@ -24,7 +26,8 @@ public abstract class TestRunner {
 
         var schematic = Schematic.create(
                 new Location(world, 0, 0, 0),
-                new Location(world, 1, 0, 1));
+                new Location(world, 1, 0, 1),
+                Map.of("waypoint", List.of(world.getSpawnLocation())));
 
         schematic.save(SCHEMATIC_PATH.toFile());
 
