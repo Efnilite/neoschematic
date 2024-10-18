@@ -27,7 +27,7 @@ public abstract class TestRunner {
         var schematic = Schematic.create(
                 new Location(world, 0, 0, 0),
                 new Location(world, 1, 0, 1),
-                Map.of("waypoint", List.of(world.getSpawnLocation())));
+                Map.of("waypoint", List.of(new Location(world, 10, 5, -10))));
 
         schematic.save(SCHEMATIC_PATH.toFile());
 

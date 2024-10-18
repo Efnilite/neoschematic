@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public final class Schematic {
 
-    public static final int DATA_VERSION = 1;
+    public static final int DATA_VERSION = 2;
     private final int dataVersion;
     private final String minecraftVersion;
     private final Vector dimensions;
