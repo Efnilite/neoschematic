@@ -502,7 +502,7 @@ public final class Schematic {
                 .map(location -> {
                     Location added = location.clone();
                     added.setWorld(pastedAt.getWorld());
-                    return added.add(pastedAt);
+                    return added.add(round(pastedAt));
                 })
                 .toList();
     }
@@ -529,10 +529,9 @@ public final class Schematic {
             return null;
         }
 
-
         Location added = location.clone();
         added.setWorld(pastedAt.getWorld());
-        return added.clone().add(pastedAt.toVector());
+        return added.clone().add(round(pastedAt).toVector());
     }
 
     /**
