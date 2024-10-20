@@ -54,4 +54,12 @@ public class SchematicTest extends TestRunner {
         assertNotNull(waypoint);
         assertEquals(new Location(getWorld(), 10, 5, -10).add(-3, 0, 5), waypoint);
     }
+
+    @Test
+    public void testOffsetWaypoint() {
+        var waypoint = getSchematic().getWaypoint(new Location(getWorld(), -3.5, 0.5, 5.5), "waypoint");
+
+        assertNotNull(waypoint);
+        assertEquals(new Location(getWorld(), 10, 5, -10).add(-4, 0, 5), waypoint);
+    }
 }
