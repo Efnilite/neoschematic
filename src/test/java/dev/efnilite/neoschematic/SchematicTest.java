@@ -1,6 +1,5 @@
-package dev.efnilite.neoschematic.test;
+package dev.efnilite.neoschematic;
 
-import dev.efnilite.neoschematic.Schematic;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
