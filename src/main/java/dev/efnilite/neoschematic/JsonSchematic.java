@@ -26,7 +26,7 @@ public class JsonSchematic implements FileType {
     private static final int START = '#';
     private int currentChar = START - 1;
 
-    private static final Gson GSON = new GsonBuilder()
+    static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .excludeFieldsWithoutExposeAnnotation()
@@ -94,15 +94,21 @@ public class JsonSchematic implements FileType {
         var jsonSchematic = new JsonSchematic(schematic.getDataVersion(), schematic.getMinecraftVersion(),
                 dimensions, palette, serializedBlocks, waypoints);
 
-        try (var writer = new BufferedWriter(new FileWriter(file))) {
-            GSON.toJson(jsonSchematic, writer);
-
-            writer.flush();
+        try {
+            write(file, jsonSchematic);
         } catch (IOException e) {
             return false;
         }
 
         return true;
+    }
+
+    void write(File file, JsonSchematic type) throws IOException {
+        try (var writer = new BufferedWriter(new FileWriter(file))) {
+            GSON.toJson(type, writer);
+
+            writer.flush();
+        }
     }
 
     @Override
@@ -111,8 +117,8 @@ public class JsonSchematic implements FileType {
         Preconditions.checkNotNull(file, "File is null");
         Preconditions.checkArgument(file.exists(), "File does not exist");
 
-        try (var reader = new BufferedReader(new FileReader(file))) {
-            var serialized = GSON.fromJson(reader, JsonSchematic.class);
+        try {
+            var serialized = read(file);
 
             var dataVersion = serialized.dataVersion;
             var mcVersion = serialized.minecraftVersion;
@@ -145,8 +151,14 @@ public class JsonSchematic implements FileType {
         }
     }
 
+    JsonSchematic read(File file) throws IOException {
+        try (var reader = new BufferedReader(new FileReader(file))) {
+            return GSON.fromJson(reader, JsonSchematic.class);
+        }
+    }
+
     // avoids control chars
-    public String getChar(short id) {
+    String getChar(short id) {
         return chars.computeIfAbsent(id, it -> {
             do {
                 currentChar++;
@@ -156,7 +168,7 @@ public class JsonSchematic implements FileType {
         });
     }
 
-    public short fromChar(char c) {
+    short fromChar(char c) {
         return controls.computeIfAbsent(c, it -> {
             var controlSince = 0;
 

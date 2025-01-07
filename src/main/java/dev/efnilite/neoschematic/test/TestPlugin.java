@@ -67,7 +67,7 @@ public class TestPlugin extends JavaPlugin {
     private Class<?>[] getClasses() throws IOException {
         JarFile jar = new JarFile(getJarFile());
 
-        String basePackage = "dev/efnilite/neoschematic/test/";
+        String basePackage = "dev/efnilite/neoschematic/";
         List<Class<?>> classes = new ArrayList<>();
 
         try {
