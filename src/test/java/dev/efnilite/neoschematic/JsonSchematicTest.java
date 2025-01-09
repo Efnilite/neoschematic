@@ -1,13 +1,38 @@
-package dev.efnilite.neoschematic.test;
+package dev.efnilite.neoschematic;
 
-import dev.efnilite.neoschematic.JsonSchematic;
+import org.bukkit.Location;
 import org.junit.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JsonSchematicTest extends TestRunner {
+
+    @Override
+    protected Schematic getSchematic() {
+        placeBlocks();
+
+        var saved = Schematic.create(
+                new Location(getWorld(), 0, 0, 0),
+                new Location(getWorld(), 1, 0, 1),
+                Map.of("waypoint", List.of(new Location(getWorld(), 10, 5, -10))));
+
+        UUID uuid = UUID.randomUUID();
+        saved.save(uuid + ".json");
+
+        assertTrue(Files.exists(Path.of(uuid + ".json")));
+
+        resetBlocks();
+
+        return Schematic.load(uuid + ".json");
+    }
 
     private static final JsonSchematic JSON_SCHEMATIC = new JsonSchematic();
 
@@ -33,4 +58,5 @@ public class JsonSchematicTest extends TestRunner {
         assertEquals(92, (int) idxs.get(3));
         assertEquals(93, (int) idxs.get(4));
     }
+
 }
