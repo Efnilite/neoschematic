@@ -132,16 +132,15 @@ public class JsonSchematic implements FileType {
 
             var waypoints = new HashMap<String, List<Location>>();
             if (dataVersion >= 2) {
-                serialized.waypoints.forEach((key, locations) -> {
-                    waypoints.put(key, locations.stream()
-                            .map(it -> it.split(","))
-                            .map(it -> new Location(null, Double.parseDouble(it[0]),
-                                    Double.parseDouble(it[1]),
-                                    Double.parseDouble(it[2]),
-                                    Float.parseFloat(it[3]),
-                                    Float.parseFloat(it[4])))
-                            .toList());
-                });
+                serialized.waypoints.forEach((key, locations) ->
+                        waypoints.put(key, locations.stream()
+                                .map(it -> it.split(","))
+                                .map(it -> new Location(null, Double.parseDouble(it[0]),
+                                        Double.parseDouble(it[1]),
+                                        Double.parseDouble(it[2]),
+                                        Float.parseFloat(it[3]),
+                                        Float.parseFloat(it[4])))
+                                .toList()));
             }
 
             return new Schematic(Schematic.DATA_VERSION, mcVersion, dimensions,

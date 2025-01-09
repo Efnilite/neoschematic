@@ -32,11 +32,17 @@ public class TestPlugin extends JavaPlugin {
         }
 
         var failed = result.getFailures().stream()
-                .map(failure ->
-                        Map.entry(failure.getMessage(),
-                                Arrays.stream(failure.getException().getStackTrace())
-                                        .map(StackTraceElement::toString)
-                                        .toList()))
+                .map(failure -> {
+                    var message = failure.getMessage();
+                    if (message == null) {
+                        message = "Unknown exception thrown (" + UUID.randomUUID() + ")";
+                    }
+
+                    return Map.entry(message,
+                            Arrays.stream(failure.getException().getStackTrace())
+                                    .map(StackTraceElement::toString)
+                                    .toList());
+                })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         var results = new TestResults(
