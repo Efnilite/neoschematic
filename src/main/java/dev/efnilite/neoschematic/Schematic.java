@@ -72,10 +72,24 @@ public final class Schematic {
      */
     @NotNull
     public static Schematic create(@NotNull Location pos1, @NotNull Location pos2) {
-        var world = pos1.getWorld() == null ? pos2.getWorld() : pos1.getWorld();
-        Preconditions.checkNotNull(world, "Locations must have at least one world");
+        Preconditions.checkArgument(pos1.getWorld() != null || pos2.getWorld() != null,
+                "Locations must have at least one world");
+        return create(pos1.getBlock(), pos2.getBlock());
+    }
 
-        var data = getBlocks(pos1.toVector(), pos2.toVector(), world);
+    /**
+     * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
+     * For large schematics, use {@link #createAsync(Block, Block, Plugin)}.
+     *
+     * @param pos1 The first block.
+     * @param pos2 The second block.
+     * @return A new {@link Schematic} instance.
+     */
+    @NotNull
+    public static Schematic create(@NotNull Block pos1, @NotNull Block pos2) {
+        Preconditions.checkArgument(pos1.getWorld() == pos2.getWorld(), "Blocks must be in the same world");
+
+        var data = getBlocks(pos1, pos2, pos1.getWorld());
 
         return new Schematic(DATA_VERSION, Bukkit.getBukkitVersion().split("-")[0],
                 data.dimensions, data.palette, data.blocks);
@@ -96,21 +110,39 @@ public final class Schematic {
             @NotNull Location pos2,
             @NotNull Map<String, List<Location>> waypoints
     ) {
-        var world = pos1.getWorld() == null ? pos2.getWorld() : pos1.getWorld();
-        Preconditions.checkNotNull(world, "Locations must have at least one world");
+        Preconditions.checkArgument(pos1.getWorld() != null || pos2.getWorld() != null,
+                "Locations must have at least one world");
+        return create(pos1.getBlock(), pos2.getBlock(), waypoints);
+    }
 
-        var pos1Vector = pos1.toVector();
-        var pos2Vector = pos2.toVector();
+    /**
+     * Synchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
+     * For large schematics, use {@link #createAsync(Block, Block, Plugin)}.
+     *
+     * @param pos1 The first block.
+     * @param pos2 The second block.
+     * @param waypoints A map of waypoints, where each key identifies a vector offset from the paste location.
+     * @return A new {@link Schematic} instance.
+     */
+    @NotNull
+    public static Schematic create(
+            @NotNull Block pos1,
+            @NotNull Block pos2,
+            @NotNull Map<String, List<Location>> waypoints
+    ) {
+        var world = pos1.getWorld();
 
-        var data = getBlocks(pos1Vector, pos2Vector, world);
-        var min = round(Vector.getMinimum(pos1Vector, pos2Vector)).toLocation(world);
+        var data = getBlocks(pos1, pos2, world);
+        var min = Vector.getMinimum(pos1.getLocation().toVector(), pos2.getLocation().toVector())
+                .toLocation(world)
+                .getBlock();
 
         var offsetWaypoints = waypoints.entrySet().stream()
                 .map(entry -> {
                     var name = entry.getKey();
                     var locations = entry.getValue();
                     return Map.entry(name, locations.stream()
-                            .map(location -> location.clone().subtract(min))
+                            .map(location -> location.clone().subtract(min.getLocation()))
                             .toList());
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -147,6 +179,24 @@ public final class Schematic {
      *
      * @param pos1 The first position.
      * @param pos2 The second position.
+     * @param plugin The plugin instance.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned.
+     */
+    @NotNull
+    public static CompletableFuture<Schematic> createAsync(
+            @NotNull Block pos1,
+            @NotNull Block pos2,
+            @NotNull Plugin plugin
+    ) {
+        return createAsync(pos1.getLocation(), pos2.getLocation(), plugin);
+    }
+
+    /**
+     * Asynchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
+     * This method avoids blocking the main thread during block fetching.
+     *
+     * @param pos1 The first position.
+     * @param pos2 The second position.
      * @param waypoints A map of waypoints, where each key identifies a vector offset from the paste location.
      * @param plugin The plugin instance.
      * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned.
@@ -163,6 +213,26 @@ public final class Schematic {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> future.complete(create(pos1, pos2, waypoints)));
 
         return future;
+    }
+
+    /**
+     * Asynchronously gets and stores all blocks between the positions in a new {@link Schematic} instance.
+     * This method avoids blocking the main thread during block fetching.
+     *
+     * @param pos1 The first position.
+     * @param pos2 The second position.
+     * @param waypoints A map of waypoints, where each key identifies a vector offset from the paste location.
+     * @param plugin The plugin instance.
+     * @return A {@link CompletableFuture}. When completed, the new {@link Schematic} instance is returned.
+     */
+    @NotNull
+    public static CompletableFuture<Schematic> createAsync(
+            @NotNull Block pos1,
+            @NotNull Block pos2,
+            @NotNull Map<String, List<Location>> waypoints,
+            @NotNull Plugin plugin
+    ) {
+        return createAsync(pos1.getLocation(), pos2.getLocation(), waypoints, plugin);
     }
 
     /**
@@ -279,12 +349,12 @@ public final class Schematic {
         return loadAsync(new File(file), plugin);
     }
 
-    private static BlocksData getBlocks(Vector pos1, Vector pos2, @NotNull World world) {
+    private static BlocksData getBlocks(Block pos1, Block pos2, @NotNull World world) {
         Preconditions.checkNotNull(pos1, "First position is null");
         Preconditions.checkNotNull(pos2, "Second position is null");
 
-        var min = round(Vector.getMinimum(pos1, pos2));
-        var max = round(Vector.getMaximum(pos1, pos2));
+        var min = round(Vector.getMinimum(pos1.getLocation().toVector(), pos2.getLocation().toVector()));
+        var max = round(Vector.getMaximum(pos1.getLocation().toVector(), pos2.getLocation().toVector()));
         var dimensions = max.clone().subtract(min);
 
         var paletteMap = new LinkedHashMap<BlockData, Short>();
@@ -436,20 +506,30 @@ public final class Schematic {
      * @return A list of all blocks which have been altered.
      */
     public List<Block> paste(@NotNull Location location, boolean skipAir) {
-        Preconditions.checkNotNull(location, "Location is null");
+        return paste(location.getBlock(), skipAir);
+    }
 
-        var pos = round(location);
+    /**
+     * Pastes the schematic at the specified block.
+     *
+     * @param block The block to paste the schematic at.
+     * @return A list of all blocks which have been altered.
+     */
+    public List<Block> paste(@NotNull Block block, boolean skipAir) {
+        Preconditions.checkNotNull(block, "Block is null");
+
+        var pos = block.getLocation();
         var max = pos.clone().add(dimensions);
         var bs = new ArrayList<Block>();
 
         var idx = 0;
-        for (int x = location.getBlockX(); x <= max.getBlockX(); x++) {
+        for (int x = block.getX(); x <= max.getBlockX(); x++) {
             pos.setX(x);
 
-            for (int y = location.getBlockY(); y <= max.getBlockY(); y++) {
+            for (int y = block.getY(); y <= max.getBlockY(); y++) {
                 pos.setY(y);
 
-                for (int z = location.getBlockZ(); z <= max.getBlockZ(); z++) {
+                for (int z = block.getZ(); z <= max.getBlockZ(); z++) {
                     pos.setZ(z);
 
                     var data = palette.get(blocks.get(idx));
@@ -459,9 +539,9 @@ public final class Schematic {
                         continue;
                     }
 
-                    var block = pos.getBlock();
-                    block.setBlockData(data);
-                    bs.add(block);
+                    var loopBlock = pos.getBlock();
+                    loopBlock.setBlockData(data);
+                    bs.add(loopBlock);
 
                     idx++;
                 }
@@ -476,12 +556,6 @@ public final class Schematic {
         return new Vector(Math.floor(vector.getX()), Math.floor(vector.getY()), Math.floor(vector.getZ()));
     }
 
-    // rounds location to lowest ints
-    private static Location round(Location location) {
-        return new Location(location.getWorld(), Math.floor(location.getX()),
-                Math.floor(location.getY()), Math.floor(location.getZ()));
-    }
-
     /**
      * Returns the absolute locations of specific waypoints, not relative to the paste location.
      * If the waypoints do not exist, null is returned.
@@ -492,6 +566,19 @@ public final class Schematic {
      */
     @Nullable
     public List<Location> getWaypoints(@NotNull Location pastedAt, @NotNull String name) {
+        return getWaypoints(pastedAt.getBlock(), name);
+    }
+
+    /**
+     * Returns the absolute locations of specific waypoints, not relative to the paste location.
+     * If the waypoints do not exist, null is returned.
+     *
+     * @param pastedAt The block where the schematic was pasted.
+     * @param name The name of the waypoint.
+     * @return The absolute location of the waypoints, or null if the waypoints do not exist.
+     */
+    @Nullable
+    public List<Location> getWaypoints(@NotNull Block pastedAt, @NotNull String name) {
         Preconditions.checkNotNull(pastedAt.getWorld(), "World is null");
 
         if (!waypoints.containsKey(name)) {
@@ -502,7 +589,7 @@ public final class Schematic {
                 .map(location -> {
                     Location added = location.clone();
                     added.setWorld(pastedAt.getWorld());
-                    return added.add(pastedAt);
+                    return added.add(pastedAt.getLocation());
                 })
                 .toList();
     }
@@ -517,6 +604,19 @@ public final class Schematic {
      */
     @Nullable
     public Location getWaypoint(@NotNull Location pastedAt, @NotNull String name) {
+        return getWaypoint(pastedAt.getBlock(), name);
+    }
+
+    /**
+     * Returns the absolute location of a specific waypoint, not relative to the paste location.
+     * If the waypoint does not exist, null is returned.
+     *
+     * @param pastedAt The block where the schematic was pasted.
+     * @param name The name of the waypoint.
+     * @return The absolute location of the waypoint, or null if the waypoint does not exist.
+     */
+    @Nullable
+    public Location getWaypoint(@NotNull Block pastedAt, @NotNull String name) {
         Preconditions.checkNotNull(pastedAt.getWorld(), "World is null");
 
         if (!waypoints.containsKey(name)) {
@@ -529,10 +629,9 @@ public final class Schematic {
             return null;
         }
 
-
         Location added = location.clone();
         added.setWorld(pastedAt.getWorld());
-        return added.clone().add(pastedAt.toVector());
+        return added.clone().add(pastedAt.getLocation());
     }
 
     /**
