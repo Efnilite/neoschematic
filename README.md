@@ -2,14 +2,19 @@
 
 ### NeoSchematic
 
+**Supports 1.18-1.21**
+
 [Source](https://github.com/Efnilite/neoschematic) · [SpigotMC](https://www.spigotmc.org/resources/116652/) · by [Efnilite](https://github.com/Efnilite)
 
 </div>
 
 ## Features
 - Much easier and smaller than WorldEdit
-- Schematics are stored in JSON: allows for easy editing and reading
-- Storage size scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
+- Schematics can be stored in JSON
+  - Allows for easy editing and reading
+  - Storage size scales linearly with the amount of blocks: 1 million blocks ~= 1 MB
+- Schematics can be stored in ZIP
+  - Allows for small file sizes
 
 ## Todo
 
